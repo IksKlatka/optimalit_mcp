@@ -1,0 +1,8 @@
+mcp[cli]==1.10.1
+openai==1.75.0
+python-dotenv
+ipykernel
+httpx
+psycopg2
+psycopg2-binary
+google-auth
