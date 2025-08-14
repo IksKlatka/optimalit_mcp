@@ -1,5 +1,5 @@
 import requests
-from app.config import (SMSAPI_TOKEN,
+from config import (SMSAPI_TOKEN,
                         GOOGLE_EMAIL_PASSWORD,
                         GOOGLE_EMAIL_USER)
 import smtplib

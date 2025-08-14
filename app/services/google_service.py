@@ -1,4 +1,4 @@
-from app.config import load_credentials
+from config import load_credentials
 from datetime import datetime
 import requests
 import json

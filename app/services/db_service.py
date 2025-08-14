@@ -1,12 +1,12 @@
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
 
-from app.config import (SUPABASE_DB,
+from config import (SUPABASE_DB,
                         SUPABASE_HOST,
                         SUPABASE_PORT,
                         SUPABASE_USER,
                         SUPABASE_PASSWORD)
-from utils import check_connection
+from .utils import check_connection
 import logging
 
 logger = logging.getLogger(__name__)

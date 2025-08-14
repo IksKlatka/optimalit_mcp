@@ -1,5 +1,9 @@
 from dotenv import load_dotenv
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -38,7 +42,7 @@ def load_credentials():
     )
 
     if creds.expired and creds.refresh_token:
-        # logger.info("Token expired, refreshing...")
+        logger.info("Token expired, refreshing...")
         creds.refresh(Request())
         with open(GOOGLE_CREDENTIALS_FILE, "w") as token_file:
             token_file.write(creds.to_json())
