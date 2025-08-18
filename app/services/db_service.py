@@ -19,7 +19,7 @@ connection_pool = pool.SimpleConnectionPool(
     user=SUPABASE_USER,
     password=SUPABASE_PASSWORD,
     host=SUPABASE_HOST,
-    port=SUPABASE_PORT
+    port=5432
 )
 
 conn=connection_pool.getconn()

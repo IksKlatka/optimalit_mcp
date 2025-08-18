@@ -32,13 +32,83 @@ def check_db_connection():
 @mcp.tool(name="execute")
 def execute_command(command: str, params: dict) -> dict:
     """
-    Generic tool: dispatchuje komendy z katalogu commands/
+    Generic tool: dispatch commands
     """
     logger.info(f"execute called -> {command}({params})")
     return dispatch_tool(command, params)
 
 
+@mcp.tool(name="get_client_info")
+def tool_get_client_info(params: dict) -> dict:
+    logger.info(f"get_client_info called -> ({params})")
+    return dispatch_tool("get_client_info", params)
+
+
+@mcp.tool(name="get_installations")
+def tool_get_installations(params: dict) -> dict:
+    logger.info(f"get_installations called -> ({params})")
+    return dispatch_tool("get_installations", params)
+
+
+@mcp.tool(name="get_single_calendar_event")
+def tool_get_single_calendar_event(params: dict) -> dict:
+    """
+    Get calendar event details based on its ID.
+    :param params: { event_id: str }
+    """
+
+    logger.info(f"get_single_calendar_event called -> ({params})")
+    return dispatch_tool("get_single_calendar_event", params)
+
+
+@mcp.tool(name="get_calendar_events")
+def tool_get_calendar_events(params: dict) -> dict:
+    """
+    Get calendar events for a given date range.
+    The date range should be in the RFC3339 format YYYY-MM-DDTHH:MM:SSZ.
+    The start date should be before the end date
+    :param params: { start_date: str, end_date: str }
+    """
+    logger.info(f"get_calendar_events called -> ({params})")
+    return dispatch_tool("get_calendar_events", params)
+
+
+@mcp.tool(name="create_calendar_event")
+def tool_create_calendar_event(params: dict) -> dict:
+    """
+    Create a new calendar event.
+    Summary and description can be the same.
+    :param params: { summary: string, description: string,
+    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
+    """
+    logger.info(f"create_calendar_event called -> ({params})")
+    return dispatch_tool("create_calendar_event", params)
+
+
+@mcp.tool(name="send_sms")
+def tool_send_sms(params: dict) -> dict:
+    """
+    Send SMS via SMSAPI to given phone number with given content
+    :param params: { phone_number: str | int, message: str }
+    """
+    logger.info(f"send_sms called -> ({params})")
+    return dispatch_tool("send_sms", params)
+
+
+@mcp.tool(name="send_email")
+def tool_send_email(params: dict) -> dict:
+    """
+    Send e-mail via SMTP server and Gmail account with neccessary content.
+    :param params: { email: str | list[str], subject: str, message: str }
+    """
+
+    logger.info(f"send_email called -> ({params})")
+    return dispatch_tool("send_email", params)
+
+
 if __name__ == "__main__":
     logger.info(f"Starting MCP SSE server on {mcp.settings.host}:{mcp.settings.port}")
     check_db_connection()
-    mcp.run(transport="stdio")
+    mcp.run(transport="sse")

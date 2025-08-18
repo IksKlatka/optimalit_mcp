@@ -15,11 +15,6 @@ headers = {
 
 
 def get_many_events(start_date: str, end_date: str) -> str:
-    """
-    Get calendar events for a given date range.
-    The date range should be in the RFC3339 format YYYY-MM-DDTHH:MM:SSZ.
-    The start date should be before the end date.
-    """
     logger.info(f"Getting calendar events for date range: {start_date} to {end_date}")
 
     if start_date is None:

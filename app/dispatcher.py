@@ -1,7 +1,5 @@
 import logging
-import json
-
-from commands import customers, calendar, notification
+from commands import  calendar, notification, customers
 
 logger = logging.getLogger(__name__)
 
