@@ -23,11 +23,10 @@ def send_sms_notification(phone_number: str, message: str):
             },
         json={
             "to": phone_number,
-            "message": message
-            },
-        params={
-            "normalize": 1
-        }
+            "message": message,
+            "normalize": 1,
+            "nounicode": 1
+            }
     )
 
     response.raise_for_status()

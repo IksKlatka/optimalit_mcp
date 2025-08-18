@@ -10,7 +10,8 @@ load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CALENDAR_CLIENT_ID", False)
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CALENDAR_CLIENT_SECRET", False)
 GOOGLE_API_KEY = os.getenv("GOOGLE_CALENDAR_API_KEY", False)
-GOOGLE_CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "google_credits.json")
+GOOGLE_CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "google_credentials.json")
+GOOGLE_TOKEN_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "token.json")
 
 API_KEY = os.getenv("API_KEY", False)
 GOOGLE_EMAIL_PASSWORD = os.getenv("GOOGLE_EMAIL_PASSWORD", False)
@@ -35,16 +36,15 @@ def load_credentials():
     Checks both token and updates data if something is missing.
     :return: None
     """
-
     creds = Credentials.from_authorized_user_file(
-        GOOGLE_CREDENTIALS_FILE,
+        GOOGLE_TOKEN_FILE,
         ["https://www.googleapis.com/auth/calendar"]
     )
 
     if creds.expired and creds.refresh_token:
         logger.info("Token expired, refreshing...")
         creds.refresh(Request())
-        with open(GOOGLE_CREDENTIALS_FILE, "w") as token_file:
+        with open(GOOGLE_TOKEN_FILE, "w") as token_file:
             token_file.write(creds.to_json())
     elif creds.expired and not creds.refresh_token:
         raise Exception("Token expired and no refresh token — you need to log in again")

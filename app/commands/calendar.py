@@ -67,8 +67,8 @@ def create_event(params: dict):
     """
     Create a new calendar event.
     :param params: { summary: string, description: string,
-    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
-    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    start_date: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    end_date: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
     """
 
@@ -77,9 +77,9 @@ def create_event(params: dict):
                          'end date, attendees and optional location'}
 
     summary = params.get('summary')
-    description = params.get('description')
-    start_date = params.get('start')
-    end_date = params.get('end')
+    description = params.get('description') or "Wydarzenie utworzone przez Agenta AI z telefonicznej obsługi klienta"
+    start_date = params.get('start_date')
+    end_date = params.get('end_date')
     attendees = params.get('attendees')
     location = params.get('location') or ""
 
@@ -91,17 +91,11 @@ def create_event(params: dict):
 
     if not is_string_non_empty([summary]):
         return {'error': 'Value summary should be non-empty strings'}
-    if not is_string_non_empty([description]):
-        return {'error': 'Value description should be non-empty strings'}
-    if not is_string_non_empty([start_date]):
-        return {'error': 'Value start_date should be non-empty strings'}
-    if not is_string_non_empty([end_date]):
-        return {'error': 'Value end_date should be non-empty strings'}
-    if not start_date_in_future(start_date):
+    if not start_date_in_future(start_date['dateTime']):
         return {'error': 'start_date cannot be in the past'}
-    if not end_after_start_date(start_date, end_date):
+    if not end_after_start_date(start_date['dateTime'], end_date['dateTime']):
         return {'error': 'end_date cannot be before start_date'}
-    if not is_rfc3339(start_date) or not is_rfc3339(end_date):
+    if not is_rfc3339(start_date['dateTime']) or not is_rfc3339(end_date['dateTime']):
         return {'error': 'Dates must be in valid RFC3339 format'}
 
 

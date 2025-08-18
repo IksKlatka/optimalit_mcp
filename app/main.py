@@ -1,9 +1,11 @@
 import logging
 from mcp.server import FastMCP
 from dispatcher import dispatch_tool
-from services.db_service import connection_pool
-from services.utils import check_connection
+# from services.db_service import connection_pool
+# from services.utils import check_connection
 from logging_config import setup_logging
+from refresh_token import refresh_token
+
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -17,16 +19,16 @@ mcp = FastMCP(
 )
 
 
-def check_db_connection():
-    """Sprawdzenie czy baza działa na starcie serwera"""
-    conn = connection_pool.getconn()
-    try:
-        if not check_connection(conn=conn, logger=logger):
-            logger.error("Connection with Postgres failed.")
-        else:
-            logger.info("Connection with Postgres established successfully")
-    finally:
-        connection_pool.putconn(conn)
+# def check_db_connection():
+#     """Sprawdzenie czy baza działa na starcie serwera"""
+#     conn = connection_pool.getconn()
+#     try:
+#         if not check_connection(conn=conn, logger=logger):
+#             logger.error("Connection with Postgres failed.")
+#         else:
+#             logger.info("Connection with Postgres established successfully")
+#     finally:
+#         connection_pool.putconn(conn)
 
 
 @mcp.tool(name="execute")
@@ -38,16 +40,16 @@ def execute_command(command: str, params: dict) -> dict:
     return dispatch_tool(command, params)
 
 
-@mcp.tool(name="get_client_info")
-def tool_get_client_info(params: dict) -> dict:
-    logger.info(f"get_client_info called -> ({params})")
-    return dispatch_tool("get_client_info", params)
-
-
-@mcp.tool(name="get_installations")
-def tool_get_installations(params: dict) -> dict:
-    logger.info(f"get_installations called -> ({params})")
-    return dispatch_tool("get_installations", params)
+# @mcp.tool(name="get_client_info")
+# def tool_get_client_info(params: dict) -> dict:
+#     logger.info(f"get_client_info called -> ({params})")
+#     return dispatch_tool("get_client_info", params)
+#
+#
+# @mcp.tool(name="get_installations")
+# def tool_get_installations(params: dict) -> dict:
+#     logger.info(f"get_installations called -> ({params})")
+#     return dispatch_tool("get_installations", params)
 
 
 @mcp.tool(name="get_single_calendar_event")
@@ -78,9 +80,9 @@ def tool_create_calendar_event(params: dict) -> dict:
     """
     Create a new calendar event.
     Summary and description can be the same.
-    :param params: { summary: string, description: string,
-    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
-    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    :param params: { summary: string,
+    start_date: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    end_date: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
     """
     logger.info(f"create_calendar_event called -> ({params})")
@@ -109,6 +111,7 @@ def tool_send_email(params: dict) -> dict:
 
 
 if __name__ == "__main__":
+    refresh_token()
     logger.info(f"Starting MCP SSE server on {mcp.settings.host}:{mcp.settings.port}")
-    check_db_connection()
+    # check_db_connection()
     mcp.run(transport="sse")

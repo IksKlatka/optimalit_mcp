@@ -7,14 +7,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-credentials = load_credentials()
-
-headers = {
-    "Authorization": f"Bearer {credentials.token}"
-}
+def get_headers():
+    creds = load_credentials()
+    return {
+        "Authorization": f"Bearer {creds.token}"
+    }
 
 
 def get_many_events(start_date: str, end_date: str) -> str:
+    headers = get_headers()
     logger.info(f"Getting calendar events for date range: {start_date} to {end_date}")
 
     if start_date is None:
@@ -27,8 +28,8 @@ def get_many_events(start_date: str, end_date: str) -> str:
         "https://www.googleapis.com/calendar/v3/calendars/primary/events",
 
     params={
-        "start_date": start_date,
-        "end_date": end_date,
+        "timeMin": start_date,
+        "timeMax": end_date,
     },
         headers=headers,
     )
@@ -43,10 +44,7 @@ def get_many_events(start_date: str, end_date: str) -> str:
 
 
 def get_calendar_event(event_id: str) -> str:
-    """
-    Get calendar event details based on its ID.
-
-    """
+    headers = get_headers()
     logger.info(f"Getting calendar event: {event_id}")
 
     response = requests.get(
@@ -65,18 +63,15 @@ def get_calendar_event(event_id: str) -> str:
 
 
 def create_calendar_event(event_data: dict) -> str:
-    """
-    Create a calendar event.
-    The event_data should be a dictionary with the following keys:
-    - summary: string
-    - description: string
-    - start: dict with keys: dateTime, timeZone - dateTime in format YYYY-MM-DDTHH:MM:SSZ, timeZone in format Europe/Warsaw
-    - end: dict with keys: dateTime, timeZone - dateTime in format YYYY-MM-DDTHH:MM:SSZ, timeZone in format Europe/Warsaw
-    - attendees: list of strings
-    - location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów"
-    """
-
+    headers = get_headers()
     logger.info(f"Creating calendar event.")
+
+    event_data['start_date'] = event_data['start']
+    del event_data['start']
+    event_data['end_date'] = event_data['end']
+    del event_data['end']
+
+
     if "location" not in event_data:
         event_data["location"] = "ul. Wałowa 3, 43-100 Skoczów"
 

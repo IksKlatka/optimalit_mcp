@@ -1,11 +1,11 @@
 import logging
-from commands import  calendar, notification, customers
+from commands import  calendar, notification
 
 logger = logging.getLogger(__name__)
 
 COMMANDS = {
-    "get_client_info": customers.client_details,
-    "get_installations": customers.get_client_installation,
+    # "get_client_info": customers.client_details,
+    # "get_installations": customers.get_client_installation,
     "get_single_calendar_event": calendar.get_single_event,
     "get_calendar_events": calendar.list_future_events,
     "create_calendar_event": calendar.create_event,
