@@ -66,11 +66,6 @@ def create_calendar_event(event_data: dict) -> str:
     headers = get_headers()
     logger.info(f"Creating calendar event.")
 
-    event_data['start_date'] = event_data['start']
-    del event_data['start']
-    event_data['end_date'] = event_data['end']
-    del event_data['end']
-
 
     if "location" not in event_data:
         event_data["location"] = "ul. Wałowa 3, 43-100 Skoczów"
