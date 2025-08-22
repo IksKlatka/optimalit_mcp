@@ -1,8 +1,8 @@
 import logging
 from mcp.server import FastMCP
 from dispatcher import dispatch_tool
-# from services.db_service import connection_pool
-# from services.utils import check_connection
+from services.db_service import connection_pool
+from services.utils import check_connection
 from logging_config import setup_logging
 from refresh_token import refresh_token
 
@@ -19,16 +19,36 @@ mcp = FastMCP(
 )
 
 
-# def check_db_connection():
-#     """Sprawdzenie czy baza działa na starcie serwera"""
-#     conn = connection_pool.getconn()
-#     try:
-#         if not check_connection(conn=conn, logger=logger):
-#             logger.error("Connection with Postgres failed.")
-#         else:
-#             logger.info("Connection with Postgres established successfully")
-#     finally:
-#         connection_pool.putconn(conn)
+def check_db_connection():
+    """Sprawdzenie czy baza działa na starcie serwera"""
+    conn = connection_pool.getconn()
+    try:
+        if not check_connection(conn=conn, logger=logger):
+            logger.error("Connection with Postgres failed.")
+        else:
+            logger.info("Connection with Postgres established successfully")
+    finally:
+        connection_pool.putconn(conn)
+
+
+@mcp.tool(name="get_client_details")
+def get_client_details(params: dict) -> dict:
+    """
+    Get client details from the database.
+    :param params: { first_name: string, last_name: string}
+    """
+    logger.info(f"get_client_details called -> ({params})")
+    return dispatch_tool("get_client_details", params)
+
+
+@mcp.tool(name="get_client_installation_details")
+def get_client_installation_details(params: dict) -> dict:
+    """
+    Get client's installation details based on client id
+    :param params: { client_id: str }
+    """
+    logger.info(f"get_client_installation_details called -> ({params})")
+    return dispatch_tool("get_client_installation_details", params)
 
 
 @mcp.tool(name="get_single_calendar_event")
@@ -59,7 +79,8 @@ def create_calendar_event(params: dict) -> dict:
     """
     Create a new calendar event.
     Summary and description can be the same.
-    :param params: { summary: string,
+    :param params: { summary: string MUST include name of the client involved!,
+    description: string ("wizyta serwisowa" - must include installation address!!, "spotkanie z klientem zainteresowanym (...)", "spotkanie w sprawie dofinansowania"),
     start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
@@ -92,5 +113,5 @@ def send_email(params: dict) -> dict:
 if __name__ == "__main__":
     refresh_token()
     logger.info(f"Starting MCP SSE server on {mcp.settings.host}:{mcp.settings.port}")
-    # check_db_connection()
-    mcp.run(transport="stdio")
+    check_db_connection()
+    mcp.run(transport="sse")

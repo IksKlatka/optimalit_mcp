@@ -71,7 +71,7 @@ def create_event(params: dict):
                          'end date, attendees and optional location'}
 
     summary = params.get('summary')
-    description = params.get('description') or "Wydarzenie utworzone przez Agenta AI z telefonicznej obsługi klienta"
+    description = params.get('description')
     start_date = params.get('start')
     end_date = params.get('end')
     attendees = params.get('attendees')

@@ -6,7 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-# ---- Fallbacki na różne nazwy ENV (Twoje vs te z Claude config) ----
 GOOGLE_CLIENT_ID = (
     os.getenv("GOOGLE_CALENDAR_CLIENT_ID")
     or os.getenv("GOOGLE_CLIENT_ID")
@@ -19,12 +18,10 @@ GOOGLE_CLIENT_SECRET = (
 )
 GOOGLE_API_KEY = os.getenv("GOOGLE_CALENDAR_API_KEY", False)
 
-# Uwaga: poprawiona literówka w domyślnej nazwie + używaj absolutnej ścieżki
 DEFAULT_CREDS_FILE = os.path.join(os.path.dirname(__file__), "google_credentials.json")
 DEFAULT_TOKEN_FILE = os.path.join(os.path.dirname(__file__), "token.json")
 
 GOOGLE_CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", DEFAULT_CREDS_FILE)
-# *** KLUCZOWA POPRAWKA: czytamy GOOGLE_TOKEN_FILE, nie GOOGLE_CREDENTIALS_FILE
 GOOGLE_TOKEN_FILE = os.getenv("GOOGLE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
 API_KEY = os.getenv("API_KEY", False)
