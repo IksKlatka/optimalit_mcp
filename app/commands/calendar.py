@@ -14,20 +14,22 @@ def list_future_events(params):
     """
 
     if not isinstance(params, dict):
-        return {'error': 'Invalid params: expected object with start_date and end_date'}
+        return {'error': 'Invalid params: expected object with start_date, end_date and calendar name'}
 
     start_date = params.get("start_date")
     end_date = params.get("end_date")
+    calendar = params.get("calendar")
 
-    if not is_string_non_empty([start_date, end_date]):
-        return {'error': f'Date is required and must be a non-empty string'}
+    if not is_string_non_empty([start_date, end_date, calendar]):
+        return {'error': f'Date and calendar name are required and must be a non-empty string'}
     if not is_rfc3339(start_date) or not is_rfc3339(end_date):
         return {'error': 'Dates must be in valid RFC3339 format'}
 
 
     try:
         events = google_service.get_many_events(start_date=start_date,
-                                       end_date=end_date)
+                                                end_date=end_date,
+                                                calendar=calendar)
         logger.info("Calendar events fetched successfully")
         return {'data': events}
     except Exception as e:
@@ -37,19 +39,20 @@ def list_future_events(params):
 def get_single_event(params):
     """
     Get single event details.
-    :param params: {event_id: str}
+    :param params: {event_id: str, calendar: name}
     """
 
     if not isinstance(params, dict):
-        return {'error': 'Invalid params: expected object with start_date and end_date'}
+        return {'error': 'Invalid params: expected object with event ID and calendar name'}
 
     event_id = params.get('event_id')
+    calendar = params.get('calendar')
 
-    if not is_string_non_empty(event_id):
-        return  {'error': 'event_id should be non-empty string'}
+    if not is_string_non_empty([event_id, calendar]):
+        return  {'error': 'event_id or calendar should be non-empty string'}
 
     try:
-        event = google_service.get_calendar_event(event_id=event_id)
+        event = google_service.get_calendar_event(event_id=event_id, calendar=calendar)
         logger.info("Calendar event details fetched successfully")
         return {'event': event}
     except Exception as e:
@@ -60,7 +63,7 @@ def get_single_event(params):
 def create_event(params: dict):
     """
     Create a new calendar event.
-    :param params: { summary: string, description: string,
+    :param params: { calendar: str, summary: string, description: string,
     start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
@@ -71,7 +74,6 @@ def create_event(params: dict):
                          'end date, attendees and optional location'}
 
     summary = params.get('summary')
-    description = params.get('description')
     start_date = params.get('start')
     end_date = params.get('end')
     attendees = params.get('attendees')

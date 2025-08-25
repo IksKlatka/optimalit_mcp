@@ -24,6 +24,10 @@ DEFAULT_TOKEN_FILE = os.path.join(os.path.dirname(__file__), "token.json")
 GOOGLE_CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", DEFAULT_CREDS_FILE)
 GOOGLE_TOKEN_FILE = os.getenv("GOOGLE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
+SERVICE_CALENDAR = os.getenv("SERVICE_CALENDAR")
+FORMALITIES_CALENDAR = os.getenv("FORMALITIES_CALENDAR")
+PRODUCT_MEETING_CALENDAR = os.getenv("CLIENT_MEETING_CALENDAR")
+
 API_KEY = os.getenv("API_KEY", False)
 GOOGLE_EMAIL_PASSWORD = os.getenv("GOOGLE_EMAIL_PASSWORD", False)
 GOOGLE_EMAIL_USER = os.getenv("GOOGLE_EMAIL_USER", False)
@@ -42,6 +46,14 @@ from google.oauth2.credentials import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
+def get_calendar_id(calendar: str) -> str:
+    calendars = {
+        "service_calendar": SERVICE_CALENDAR,
+        "formalities_calendar": FORMALITIES_CALENDAR,
+        "product_meeting_calendar":  PRODUCT_MEETING_CALENDAR
+    }
+
+    return calendars[calendar.lower()]
 
 def ensure_proper_token_format(path=GOOGLE_TOKEN_FILE):
     with open(path, "r") as f:
@@ -69,7 +81,7 @@ def ensure_proper_token_format(path=GOOGLE_TOKEN_FILE):
 
 def load_credentials(token_path=GOOGLE_TOKEN_FILE):
     if not os.path.exists(token_path):
-        raise FileNotFoundError(f"Brak pliku {token_path}, zaloguj się najpierw.")
+        raise FileNotFoundError(f"token.json file on path {token_path} not found, log in to create the file")
 
     token_path = ensure_proper_token_format(token_path)
 
@@ -81,6 +93,6 @@ def load_credentials(token_path=GOOGLE_TOKEN_FILE):
         with open(token_path, "w") as token_file:
             token_file.write(creds.to_json())
     elif creds.expired and not creds.refresh_token:
-        raise Exception("Token expired and no refresh token — musisz się zalogować ponownie.")
+        raise Exception("Token expired and no refresh token — you have authorize again.")
 
     return creds

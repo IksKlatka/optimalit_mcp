@@ -13,14 +13,16 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(
     name="my_mcp_server",
     version="0.1.0",
-    description="MCP server exposing database, calendar and notifications",
+    description="MCP server exposing access to database, calendar and notifications",
     host="0.0.0.0",
     port=8000,
 )
 
 
 def check_db_connection():
-    """Sprawdzenie czy baza działa na starcie serwera"""
+    """
+    Check connection to db on server start
+    """
     conn = connection_pool.getconn()
     try:
         if not check_connection(conn=conn, logger=logger):
@@ -55,9 +57,9 @@ def get_client_installation_details(params: dict) -> dict:
 def get_single_calendar_event(params: dict) -> dict:
     """
     Get calendar event details based on its ID.
-    :param params: { event_id: str }
+    :param params: { event_id: str,
+    calendar: str one of [product_meeting_calendar, service_calendar, formalities_calendar] }
     """
-
     logger.info(f"get_single_calendar_event called -> ({params})")
     return dispatch_tool("get_single_calendar_event", params)
 
@@ -68,7 +70,9 @@ def get_calendar_events(params: dict) -> dict:
     Get calendar events for a given date range.
     The date range should be in the RFC3339 format YYYY-MM-DDTHH:MM:SSZ.
     The start date should be before the end date
-    :param params: { start_date: str, end_date: str }
+    :param params: { start_date: str, end_date: str,
+    calendar: str one of [product_meeting_calendar, service_calendar, formalities_calendar]
+    }
     """
     logger.info(f"get_calendar_events called -> ({params})")
     return dispatch_tool("get_calendar_events", params)
@@ -79,7 +83,10 @@ def create_calendar_event(params: dict) -> dict:
     """
     Create a new calendar event.
     Summary and description can be the same.
-    :param params: { summary: string MUST include name of the client involved!,
+    :param params: { calendar: str one of [product_meeting_calendar - general meetings about product and services,
+    service_calendar - for installation, service and inspection of the products at client's place, \
+    formalities_calendar - for subsidies and formal meetings]
+    summary: string MUST include name of the client involved!,
     description: string ("wizyta serwisowa" - must include installation address!!, "spotkanie z klientem zainteresowanym (...)", "spotkanie w sprawie dofinansowania"),
     start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
