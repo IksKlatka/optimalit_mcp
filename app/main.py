@@ -1,14 +1,34 @@
 import logging
 from mcp.server import FastMCP
+from mcp.server.auth.settings import AuthSettings
+from pydantic import AnyHttpUrl
+
 from dispatcher import dispatch_tool
 from services.db_service import connection_pool
 from services.utils import check_connection
 from logging_config import setup_logging
 from refresh_token import refresh_token
-
+from config import API_ACCESS_TOKEN
+from mcp.server.auth.provider import AccessToken, TokenVerifier
+from mcp.server.fastmcp import FastMCP
 
 setup_logging()
 logger = logging.getLogger(__name__)
+
+class SimpleTokenVerifier(TokenVerifier):
+    async def verify_token(self, token: str) -> AccessToken | None:
+        if token == API_ACCESS_TOKEN:
+            logger.info("Token verified")
+            return AccessToken(
+                token=token,
+                client_id="my-client-id",
+                scopes=["read", "write"],
+                expires_at=None,
+                resource="http://localhost:8000/",
+            )
+        logger.info("Token not verified")
+        return None
+
 
 mcp = FastMCP(
     name="my_mcp_server",
@@ -16,6 +36,11 @@ mcp = FastMCP(
     description="MCP server exposing access to database, calendar and notifications",
     host="0.0.0.0",
     port=8000,
+    token_verifier=SimpleTokenVerifier(),
+    auth=AuthSettings(
+        issuer_url=AnyHttpUrl("https://elevenlabs.io/app/talk-to?agent_id=agent_2301k360t7jrf13thvd4mwesv0am"),
+        resource_server_url=AnyHttpUrl("http://localhost:8000/"),
+    ),
 )
 
 

@@ -2,10 +2,14 @@ from dotenv import load_dotenv
 import os
 import json
 import logging
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+
 
 logger = logging.getLogger(__name__)
 load_dotenv()
 
+API_ACCESS_TOKEN = os.getenv('API_ACCESS_TOKEN', False)
 GOOGLE_CLIENT_ID = (
     os.getenv("GOOGLE_CALENDAR_CLIENT_ID")
     or os.getenv("GOOGLE_CLIENT_ID")
@@ -41,10 +45,13 @@ SUPABASE_DB = os.getenv("SUPABASE_DB", "postgres")
 
 COMPANY_HEADQUARTERS = os.getenv("COMPANY_HEADQUARTERS", "Plein 2A, 3861 AJ Nijkerk, Holandia")
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
+def check_access_token(token: str):
+    if token != API_ACCESS_TOKEN:
+        logger.error("Wrong access token, access denied")
+        return False
 
 def get_calendar_id(calendar: str) -> str:
     calendars = {
@@ -96,3 +103,4 @@ def load_credentials(token_path=GOOGLE_TOKEN_FILE):
         raise Exception("Token expired and no refresh token — you have authorize again.")
 
     return creds
+
