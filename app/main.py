@@ -1,11 +1,7 @@
 import logging
-from mcp.server import FastMCP
 from mcp.server.auth.settings import AuthSettings
 from pydantic import AnyHttpUrl
-
 from dispatcher import dispatch_tool
-from services.db_service import connection_pool
-from services.utils import check_connection
 from logging_config import setup_logging
 from refresh_token import refresh_token
 from config import API_ACCESS_TOKEN
@@ -44,37 +40,32 @@ mcp = FastMCP(
 )
 
 
-def check_db_connection():
-    """
-    Check connection to db on server start
-    """
-    conn = connection_pool.getconn()
-    try:
-        if not check_connection(conn=conn, logger=logger):
-            logger.error("Connection with Postgres failed.")
-        else:
-            logger.info("Connection with Postgres established successfully")
-    finally:
-        connection_pool.putconn(conn)
-
-
 @mcp.tool(name="get_client_details")
 def get_client_details(params: dict) -> dict:
     """
     Get client details from the database.
-    :param params: { first_name: string, last_name: string}
+    :param params: if { company: "sundea" then required parameters are first_name: str, last_name: str }
+    :param params: if { company: "optivendi" then required parameter is name: str }
     """
     logger.info(f"get_client_details called -> ({params})")
+
+    if not isinstance(params, dict) or "company" not in params:
+        return {"error": "Missing required parameter: company"}
+
     return dispatch_tool("get_client_details", params)
 
 
 @mcp.tool(name="get_client_installation_details")
 def get_client_installation_details(params: dict) -> dict:
     """
-    Get client's installation details based on client id
-    :param params: { client_id: str }
+    Get client's installation details based on client id.
+    :param params: { company: "sundea", client_id: str }
     """
     logger.info(f"get_client_installation_details called -> ({params})")
+
+    if not isinstance(params, dict) or "company" not in params:
+        return {"error": "Missing required parameter: company"}
+
     return dispatch_tool("get_client_installation_details", params)
 
 
@@ -144,6 +135,5 @@ def send_email(params: dict) -> dict:
 
 if __name__ == "__main__":
     refresh_token()
-    logger.info(f"Starting MCP SSE server on {mcp.settings.host}:{mcp.settings.port}")
-    check_db_connection()
-    mcp.run(transport="sse")
+    # logger.info(f"Starting MCP SSE server on {mcp.settings.host}:{mcp.settings.port}")
+    mcp.run(transport="stdio")

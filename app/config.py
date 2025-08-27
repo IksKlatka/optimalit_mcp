@@ -37,11 +37,22 @@ GOOGLE_EMAIL_PASSWORD = os.getenv("GOOGLE_EMAIL_PASSWORD", False)
 GOOGLE_EMAIL_USER = os.getenv("GOOGLE_EMAIL_USER", False)
 SMSAPI_TOKEN = os.getenv("SMSAPI_TOKEN", False)
 
-SUPABASE_HOST = os.getenv("SUPABASE_HOST", "localhost")
-SUPABASE_PORT = int(os.getenv("SUPABASE_PORT", 5432))
-SUPABASE_USER = os.getenv("SUPABASE_USER", "postgres")
-SUPABASE_PASSWORD = os.getenv("SUPABASE_PASSWORD", False)
-SUPABASE_DB = os.getenv("SUPABASE_DB", "postgres")
+DATABASES = {
+    "sundea": {
+        "dbname": os.getenv("SUNDEA_DB_NAME", "postgres"),
+        "user": os.getenv("SUNDEA_DB_USER", "postgres"),
+        "password": os.getenv("SUNDEA_DB_PASSWORD", ""),
+        "host": os.getenv("SUNDEA_DB_HOST", "localhost"),
+        "port": int(os.getenv("SUNDEA_DB_PORT", 5432)),
+    },
+    "optivendi": {
+        "database": os.getenv("OPTIVENDI_DB_NAME", "postgres"),
+        "user": os.getenv("OPTIVENDI_DB_USER", "postgres"),
+        "password": os.getenv("OPTIVENDI_DB_PASSWORD", ""),
+        "host": os.getenv("OPTIVENDI_DB_HOST", "localhost"),
+        "port": int(os.getenv("OPTIVENDI_DB_PORT", 5432)),
+    }
+}
 
 COMPANY_HEADQUARTERS = os.getenv("COMPANY_HEADQUARTERS", "Plein 2A, 3861 AJ Nijkerk, Holandia")
 
