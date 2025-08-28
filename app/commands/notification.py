@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 def sms_notification(params):
     """
-    Send SMS via SMSAPI to given phone number with given content
+    Send SMS via SMSAPI to given phone number with given content.
+    You cannot add polish signs to the content of the message = replace them with corresponsing letters.
     :param params: { phone_number: str | int, message: str }
     """
 

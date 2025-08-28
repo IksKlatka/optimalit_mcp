@@ -4,4 +4,6 @@
 .idea
 .env
 google_credits.json
+google_credentials.json
+token.json
 shithole.py
