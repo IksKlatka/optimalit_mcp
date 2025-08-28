@@ -2,7 +2,7 @@ import logging
 from mcp.server import FastMCP
 from mcp.server.auth.settings import AuthSettings
 from pydantic import AnyHttpUrl
-
+import unicodedata
 from dispatcher import dispatch_tool
 from services.db_service import connection_pool
 from services.utils import check_connection
@@ -108,11 +108,12 @@ def create_calendar_event(params: dict) -> dict:
     """
     Create a new calendar event.
     Summary and description can be the same.
-    :param params: { calendar: str one of [product_meeting_calendar - general meetings about product and services,
-    service_calendar - for installation, service and inspection of the products at client's place, \
-    formalities_calendar - for subsidies and formal meetings]
+    :param params: { calendar: str one of ["product_meeting_calendar " general meetings about product and services,
+    "service_calendar" - for installation, service and inspection of the products at client's place, \
+    "formalities_calendar" - for subsidies and formal meetings]
     summary: string MUST include name of the client involved!,
-    description: string ("wizyta serwisowa" - must include installation address!!, "spotkanie z klientem zainteresowanym (...)", "spotkanie w sprawie dofinansowania"),
+    description: string ("wizyta serwisowa" - must include installation address!!,
+    "spotkanie produktowe", "spotkanie w sprawie dofinansowania"),
     start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
@@ -128,6 +129,11 @@ def send_sms(params: dict) -> dict:
     :param params: { phone_number: str | int, message: str }
     """
     logger.info(f"send_sms called -> ({params})")
+    params['message'] = "".join(
+        c for c in unicodedata.normalize("NFKD", params['message'])
+        if not unicodedata.combining(c)
+    )
+
     return dispatch_tool("send_sms", params)
 
 
