@@ -1,9 +1,13 @@
 import requests
-from config import (SMSAPI_TOKEN,
+# from config import (SMSAPI_TOKEN,
+#                         GOOGLE_EMAIL_PASSWORD,
+#                         GOOGLE_EMAIL_USER)
+from optimalit_mcp.app.config import  (SMSAPI_TOKEN,
                         GOOGLE_EMAIL_PASSWORD,
                         GOOGLE_EMAIL_USER)
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import logging
 
 logger = logging.getLogger(__name__)
@@ -46,18 +50,31 @@ def send_email_notification(email: str, subject: str, message: str):
     """
     logger.info(f"Sending email notification to {email} with subject: {subject} and message: {message}")
 
-    msg = MIMEText(message)
-    msg['Subject'] = subject
-    msg['From'] = GOOGLE_EMAIL_USER
-    msg['To'] = ', '.join(email)
+    # Wczytanie szablonu HTML z pliku
+    with open("templates/email.html", "r", encoding="utf-8") as f:
+        html_template = f.read()
 
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-        try:
+    html_content = html_template.replace("{{ message }}", message)
+
+    # Tworzymy multipart (HTML + fallback w plain text)
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = GOOGLE_EMAIL_USER
+    msg["To"] = email
+
+    text_version = f"Powiadomienie systemowe:\n\n{message}\n\n(Wiadomość automatyczna)"
+
+    msg.attach(MIMEText(text_version, "plain"))
+    msg.attach(MIMEText(html_content, "html"))
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp_server:
             logger.info("Logging in to Gmail...")
             smtp_server.login(GOOGLE_EMAIL_USER, GOOGLE_EMAIL_PASSWORD)
             logger.info("Sending email...")
             smtp_server.sendmail(GOOGLE_EMAIL_USER, email, msg.as_string())
             logger.info("Email sent!")
-        except Exception as e:
-            logger.error(f"Error sending email: {e}")
-            raise Exception(f"Error sending email: {e}")
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        raise Exception(f"Error sending email: {e}")
+
