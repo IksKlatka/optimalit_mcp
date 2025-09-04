@@ -93,11 +93,12 @@ def get_single_calendar_event(params: dict) -> dict:
 def get_calendar_events(params: dict) -> dict:
     """
     Get calendar events for a given date range.
-    The date range should be in the RFC3339 format YYYY-MM-DDTHH:MM:SSZ.
-    The start date should be before the end date
+    The date range must be in format YYYY-MM-DDTHH:MM:SS+02:00.
+    The end date must be at least a day after the start date.
     :param params: { start_date: str, end_date: str,
     calendar: str one of [product_meeting_calendar, service_calendar, formalities_calendar]
     }
+    results of the tool are TAKEN days of the calendar - you cannot use them as available
     """
     logger.info(f"get_calendar_events called -> ({params})")
     return dispatch_tool("get_calendar_events", params)
@@ -108,14 +109,14 @@ def create_calendar_event(params: dict) -> dict:
     """
     Create a new calendar event.
     Summary and description can be the same.
-    :param params: { calendar: str one of ["product_meeting_calendar " general meetings about product and services,
+    :param params: { calendar: str one of ["product_meeting_calendar" general meetings about product and services,
     "service_calendar" - for installation, service and inspection of the products at client's place, \
     "formalities_calendar" - for subsidies and formal meetings]
     summary: string MUST include name of the client involved!,
     description: string ("wizyta serwisowa" - must include installation address!!,
     "spotkanie produktowe", "spotkanie w sprawie dofinansowania"),
-    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
-    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SS), timeZone: timeZone in format Europe/Warsaw},
+    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SS), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
     """
     logger.info(f"create_calendar_event called -> ({params})")

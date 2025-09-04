@@ -9,7 +9,7 @@ def list_future_events(params):
     """
     List calendar events in a date range.
     :param params:  {"start_date": str, "end_date": str}
-    Dates should be in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ
+    Dates should be in RFC3339 format: YYYY-MM-DDTHH:MM:SS+02:00
     Start date should not be in the past. (Start date >= today)
     """
 
@@ -22,8 +22,11 @@ def list_future_events(params):
 
     if not is_string_non_empty([start_date, end_date, calendar]):
         return {'error': f'Date and calendar name are required and must be a non-empty string'}
-    if not is_rfc3339(start_date) or not is_rfc3339(end_date):
-        return {'error': 'Dates must be in valid RFC3339 format'}
+    try:
+        datetime.fromisoformat(start_date.replace("Z", "+00:00"))
+        datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+    except ValueError:
+        return {'error': 'Dates must be valid ISO8601 format'}
 
 
     try:
@@ -64,8 +67,8 @@ def create_event(params: dict):
     """
     Create a new calendar event.
     :param params: { calendar: str, summary: string, description: string,
-    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
-    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SSZ), timeZone: timeZone in format Europe/Warsaw},
+    start: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SS), timeZone: timeZone in format Europe/Warsaw},
+    end: { dateTime: dateTime(in format YYYY-MM-DDTHH:MM:SS), timeZone: timeZone in format Europe/Warsaw},
     attendees: list[string], location: string - if not provided, the event will take place in "ul. Wałowa 3, 43-100 Skoczów" }
     """
 
@@ -87,9 +90,11 @@ def create_event(params: dict):
 
     if not is_string_non_empty([summary]):
         return {'error': 'Value summary should be non-empty strings'}
-    if not is_rfc3339(start_date['dateTime']) or not is_rfc3339(end_date['dateTime']):
-        return {'error': 'Dates must be in valid RFC3339 format'}
-
+    try:
+        datetime.fromisoformat(start_date['dateTime'].replace("Z", "+00:00"))
+        datetime.fromisoformat(end_date['dateTime'].replace("Z", "+00:00"))
+    except ValueError:
+        return {'error': 'Dates must be valid ISO8601 format'}
 
     try:
         data = google_service.create_calendar_event(params)
